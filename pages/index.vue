@@ -1,183 +1,183 @@
-<script lang="ts" setup>
-import type { ProductsResponse } from '@/types'
+<script setup lang="ts">
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { ProductsResponse } from '~/types'
+import createApiAxios from '~/utils/axios'
 
-definePageMeta({
-    title: 'Products',
-})
 
-const getProducts = async (): Promise<ProductsResponse> => {
-    const res = await fetch("https://dummyjson.com/products?limit=10")
 
-    if (!res.ok) {
-        throw new Error("Failed to fetch products")
-    }
+const apiAxios = createApiAxios()
 
-    return await res.json()
-}
+const getUsers = async (): Promise<ProductsResponse[]> => {
+  const response = await apiAxios.get("/productfs?limit=10");
+  return response.data;
+};
+
+
 
 const queryClient = useQueryClient()
 
 await queryClient.prefetchQuery({
-    queryKey: ['products'],
-    queryFn: getProducts,
+  queryKey: ['products'],
+  queryFn: getUsers,
 })
 
 const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['products'],
-    queryFn: getProducts,
+  queryKey: ['products'],
+  queryFn: getUsers,
 })
 </script>
-
-
 <template>
-    <section
-        class="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-16 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950">
-        <div class="container mx-auto max-w-7xl px-4">
-            <!-- Header -->
-            <div class="mb-12 animate-fade-in text-center">
-                <h1
-                    class="mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-5xl font-bold text-transparent dark:from-blue-400 dark:to-indigo-400">
-                    Featured Products
-                </h1>
-                <p class="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-                    Discover our curated collection of premium products
-                </p>
-            </div>
+  <section
+    class="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-16 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950"
+  >
+    <div class="container mx-auto max-w-7xl px-4">
+      <!-- Header -->
+      <div class="mb-12 animate-fade-in text-center">
+        <h1
+          class="mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-5xl font-bold text-transparent dark:from-blue-400 dark:to-indigo-400"
+        >
+          Featured Products
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+          Discover our curated collection of premium products
+        </p>
+      </div>
 
-            <!-- Loading State -->
-            <div v-if="isLoading" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="i in 6" :key="i"
-                    class="animate-pulse overflow-hidden rounded-2xl bg-white shadow-lg dark:bg-slate-800">
-                    <div class="h-64 bg-slate-200 dark:bg-slate-700" />
-                    <div class="space-y-4 p-6">
-                        <div class="h-6 rounded bg-slate-200 dark:bg-slate-700" />
-                        <div class="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-                        <div class="h-4 w-1/2 rounded bg-slate-200 dark:bg-slate-700" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Error State -->
-            <CoreErrorDisplay v-else-if="isError && error" :error="{ message: error.message }" />
-
-            <!-- Products Grid -->
-            <div v-else-if="data?.products" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <article v-for="product in data.products" :key="product.id"
-                    class="group transform overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-800">
-                    <!-- Product Image -->
-                    <div class="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700">
-                        <img :src="product.thumbnail" :alt="product.title"
-                            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        <!-- Discount Badge -->
-                        <div v-if="product.discountPercentage > 0"
-                            class="absolute right-4 top-4 rounded-full bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 text-sm font-semibold text-white shadow-lg">
-                            -{{ Math.round(product.discountPercentage) }}%
-                        </div>
-                        <!-- Stock Badge -->
-                        <div class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-lg"
-                            :class="product.stock > 50 ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'">
-                            {{ product.stock > 50 ? 'In Stock' : `Only ${product.stock} left` }}
-                        </div>
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="p-6">
-                        <!-- Category & Brand -->
-                        <div class="mb-3 flex items-center gap-2">
-                            <span
-                                class="rounded-lg bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                                {{ product.category }}
-                            </span>
-                            <span class="text-xs text-slate-500 dark:text-slate-400">
-                                {{ product.brand }}
-                            </span>
-                        </div>
-
-                        <!-- Title -->
-                        <h3
-                            class="mb-2 line-clamp-2 text-xl font-bold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                            {{ product.title }}
-                        </h3>
-
-                        <!-- Description -->
-                        <p class="mb-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
-                            {{ product.description }}
-                        </p>
-
-                        <!-- Rating -->
-                        <div class="mb-4 flex items-center gap-2">
-                            <div class="flex items-center">
-                                <svg v-for="star in 5" :key="star" class="h-4 w-4" :class="star <= Math.round(product.rating)
-                                    ? 'text-yellow-400'
-                                    : 'text-slate-300 dark:text-slate-600'
-                                    " fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                            </div>
-                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {{ product.rating.toFixed(1) }}
-                            </span>
-                        </div>
-
-                        <!-- Price & CTA -->
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-3xl font-bold text-slate-900 dark:text-white">
-                                    ${{ product.price.toFixed(2) }}
-                                </div>
-                                <div v-if="product.discountPercentage > 0"
-                                    class="text-sm text-slate-500 line-through dark:text-slate-400">
-                                    ${{ (product.price / (1 - product.discountPercentage / 100)).toFixed(2) }}
-                                </div>
-                            </div>
-                            <button
-                                class="transform rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl">
-                                Add to Cart
-                            </button>
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <!-- Results Info -->
-            <div v-if="data?.products" class="mt-12 text-center">
-                <p class="text-slate-600 dark:text-slate-400">
-                    Showing
-                    <span class="font-semibold text-slate-900 dark:text-white">{{
-                        data.products.length
-                    }}</span>
-                    of
-                    <span class="font-semibold text-slate-900 dark:text-white">{{ data.total }}</span>
-                    products
-                </p>
-            </div>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="i in 6"
+          :key="i"
+          class="animate-pulse overflow-hidden rounded-2xl bg-white shadow-lg dark:bg-slate-800"
+        >
+          <div class="h-64 bg-slate-200 dark:bg-slate-700" />
+          <div class="space-y-4 p-6">
+            <div class="h-6 rounded bg-slate-200 dark:bg-slate-700" />
+            <div class="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
+            <div class="h-4 w-1/2 rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
         </div>
-    </section>
+      </div>
+
+      <!-- Error State -->
+      <CoreErrorDisplay v-else-if="isError && error" :error="{ message: error.message }" />
+
+      <!-- Products Grid -->
+      <div v-else-if="data?.products" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <article
+          v-for="product in data.products"
+          :key="product.id"
+          class="group transform overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-800"
+        >
+          <!-- Product Image -->
+          <div class="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700">
+            <img
+              :src="product.thumbnail"
+              :alt="product.title"
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <!-- Discount Badge -->
+            <div
+              v-if="product.discountPercentage > 0"
+              class="absolute right-4 top-4 rounded-full bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 text-sm font-semibold text-white shadow-lg"
+            >
+              -{{ Math.round(product.discountPercentage) }}%
+            </div>
+            <!-- Stock Badge -->
+            <div
+              class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-lg"
+              :class="product.stock > 50 ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'"
+            >
+              {{ product.stock > 50 ? 'In Stock' : `Only ${product.stock} left` }}
+            </div>
+          </div>
+
+          <!-- Product Info -->
+          <div class="p-6">
+            <!-- Category & Brand -->
+            <div class="mb-3 flex items-center gap-2">
+              <span
+                class="rounded-lg bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+              >
+                {{ product.category }}
+              </span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ product.brand }}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h3
+              class="mb-2 line-clamp-2 text-xl font-bold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400"
+            >
+              {{ product.title }}
+            </h3>
+
+            <!-- Description -->
+            <p class="mb-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+              {{ product.description }}
+            </p>
+
+            <!-- Rating -->
+            <div class="mb-4 flex items-center gap-2">
+              <div class="flex items-center">
+                <svg
+                  v-for="star in 5"
+                  :key="star"
+                  class="h-4 w-4"
+                  :class="
+                    star <= Math.round(product.rating)
+                      ? 'text-yellow-400'
+                      : 'text-slate-300 dark:text-slate-600'
+                  "
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                  />
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {{ product.rating.toFixed(1) }}
+              </span>
+            </div>
+
+            <!-- Price & CTA -->
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-3xl font-bold text-slate-900 dark:text-white">
+                  ${{ product.price.toFixed(2) }}
+                </div>
+                <div
+                  v-if="product.discountPercentage > 0"
+                  class="text-sm text-slate-500 line-through dark:text-slate-400"
+                >
+                  ${{ (product.price / (1 - product.discountPercentage / 100)).toFixed(2) }}
+                </div>
+              </div>
+              <button
+                class="transform rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Results Info -->
+      <div v-if="data?.products" class="mt-12 text-center">
+        <p class="text-slate-600 dark:text-slate-400">
+          Showing
+          <span class="font-semibold text-slate-900 dark:text-white">{{
+            data.products.length
+          }}</span>
+          of
+          <span class="font-semibold text-slate-900 dark:text-white">{{ data.total }}</span>
+          products
+        </p>
+      </div>
+    </div>
+  </section>
 </template>
-
-<style scoped>
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fade-in 0.6s ease-out;
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>

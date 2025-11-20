@@ -9,11 +9,10 @@ const props = defineProps<{
 const router = useRouter()
 
 const handleError = () => {
-    clearError({ redirect: "/" })
+    router.push('/')
 }
 
 const tryAgain = () => {
-    clearError()
     router.go(0)
 }
 </script>

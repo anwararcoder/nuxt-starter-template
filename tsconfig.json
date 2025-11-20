@@ -1,33 +1,18 @@
 {
-    "extends": "./.nuxt/tsconfig.json",
-    "compilerOptions": {
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitReturns": true,
-        "skipLibCheck": true,
-        "paths": {
-            "@/*": [
-                "./*"
-            ],
-            "~/*": [
-                "./*"
-            ],
-            "@components/*": [
-                "./components/*"
-            ],
-            "@composables/*": [
-                "./composables/*"
-            ],
-            "@types/*": [
-                "./types/*"
-            ],
-            "@utils/*": [
-                "./utils/*"
-            ],
-            "@store/*": [
-                "./store/*"
-            ]
-        }
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "files": [],
+  "references": [
+    {
+      "path": "./.nuxt/tsconfig.app.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.server.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.shared.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.node.json"
     }
+  ]
 }
