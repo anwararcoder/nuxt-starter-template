@@ -1,0 +1,33 @@
+{
+    "extends": "./.nuxt/tsconfig.json",
+    "compilerOptions": {
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "skipLibCheck": true,
+        "paths": {
+            "@/*": [
+                "./*"
+            ],
+            "~/*": [
+                "./*"
+            ],
+            "@components/*": [
+                "./components/*"
+            ],
+            "@composables/*": [
+                "./composables/*"
+            ],
+            "@types/*": [
+                "./types/*"
+            ],
+            "@utils/*": [
+                "./utils/*"
+            ],
+            "@store/*": [
+                "./store/*"
+            ]
+        }
+    }
+}
