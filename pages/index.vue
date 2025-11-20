@@ -1,31 +1,25 @@
 <script setup lang="ts">
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { ProductsResponse } from '~/types'
-import createApiAxios from '~/utils/axios'
+import { useQueryClient } from '@tanstack/vue-query';
+import { getProducts } from '~/apis';
 
-
-
-const apiAxios = createApiAxios()
-
-const getUsers = async (): Promise<ProductsResponse[]> => {
-  const response = await apiAxios.get("/productfs?limit=10");
-  return response.data;
-};
-
-
-
-const queryClient = useQueryClient()
-
-await queryClient.prefetchQuery({
-  queryKey: ['products'],
-  queryFn: getUsers,
-})
-
-const { data, isLoading, isError, error } = useQuery({
-  queryKey: ['products'],
-  queryFn: getUsers,
-})
+  const queryClient = useQueryClient();
+  await queryClient.prefetchQuery({
+  queryKey: ["products"],
+    queryFn: () => getProducts(),
+});
+const {
+  page,
+  limit,
+  search,
+  sortBy,
+  order,
+  data,
+  isLoading,
+  isError,
+  error,
+} = useProducts();
 </script>
+
 <template>
   <section
     class="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-16 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950"
@@ -43,8 +37,53 @@ const { data, isLoading, isError, error } = useQuery({
         </p>
       </div>
 
+      <!-- Filters -->
+      <div
+        class="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-6 shadow dark:bg-slate-800"
+      >
+        <!-- Search -->
+        <input
+          v-model="search"
+          placeholder="Search products..."
+          class="w-full max-w-xs rounded-lg border border-slate-300 p-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        />
+
+        <!-- Sort By -->
+        <select
+          v-model="sortBy"
+          class="rounded-lg border border-slate-300 p-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        >
+          <option value="title">Title</option>
+          <option value="price">Price</option>
+          <option value="rating">Rating</option>
+          <option value="stock">Stock</option>
+        </select>
+
+        <!-- Order -->
+        <select
+          v-model="order"
+          class="rounded-lg border border-slate-300 p-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        >
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+
+        <!-- Limit -->
+        <select
+          v-model="limit"
+          class="rounded-lg border border-slate-300 p-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        >
+          <option :value="6">6</option>
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+        </select>
+      </div>
+
       <!-- Loading State -->
-      <div v-if="isLoading" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div
+        v-if="isLoading"
+        class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+      >
         <div
           v-for="i in 6"
           :key="i"
@@ -59,23 +98,26 @@ const { data, isLoading, isError, error } = useQuery({
         </div>
       </div>
 
-      <!-- Error State -->
-      <CoreErrorDisplay v-else-if="isError && error" :error="{ message: error.message }" />
-
       <!-- Products Grid -->
-      <div v-else-if="data?.products" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div
+        v-else-if="data?.products"
+        class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+      >
         <article
           v-for="product in data.products"
           :key="product.id"
           class="group transform overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-800"
         >
           <!-- Product Image -->
-          <div class="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700">
+          <div
+            class="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700"
+          >
             <img
               :src="product.thumbnail"
               :alt="product.title"
               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
+
             <!-- Discount Badge -->
             <div
               v-if="product.discountPercentage > 0"
@@ -83,12 +125,19 @@ const { data, isLoading, isError, error } = useQuery({
             >
               -{{ Math.round(product.discountPercentage) }}%
             </div>
+
             <!-- Stock Badge -->
             <div
               class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-lg"
-              :class="product.stock > 50 ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'"
+              :class="
+                product.stock > 50
+                  ? 'bg-green-500 text-white'
+                  : 'bg-orange-500 text-white'
+              "
             >
-              {{ product.stock > 50 ? 'In Stock' : `Only ${product.stock} left` }}
+              {{
+                product.stock > 50 ? "In Stock" : `Only ${product.stock} left`
+              }}
             </div>
           </div>
 
@@ -114,7 +163,9 @@ const { data, isLoading, isError, error } = useQuery({
             </h3>
 
             <!-- Description -->
-            <p class="mb-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+            <p
+              class="mb-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400"
+            >
               {{ product.description }}
             </p>
 
@@ -138,8 +189,10 @@ const { data, isLoading, isError, error } = useQuery({
                   />
                 </svg>
               </div>
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {{ product.rating.toFixed(1) }}
+              <span
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                {{ product.rating?.toFixed(1) }}
               </span>
             </div>
 
@@ -147,13 +200,18 @@ const { data, isLoading, isError, error } = useQuery({
             <div class="flex items-center justify-between">
               <div>
                 <div class="text-3xl font-bold text-slate-900 dark:text-white">
-                  ${{ product.price.toFixed(2) }}
+                  ${{ product.price?.toFixed(2) }}
                 </div>
                 <div
                   v-if="product.discountPercentage > 0"
                   class="text-sm text-slate-500 line-through dark:text-slate-400"
                 >
-                  ${{ (product.price / (1 - product.discountPercentage / 100)).toFixed(2) }}
+                  ${{
+                    (
+                      product.price /
+                      (1 - product.discountPercentage / 100)
+                    )?.toFixed(2)
+                  }}
                 </div>
               </div>
               <button
@@ -174,9 +232,34 @@ const { data, isLoading, isError, error } = useQuery({
             data.products.length
           }}</span>
           of
-          <span class="font-semibold text-slate-900 dark:text-white">{{ data.total }}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">{{
+            data.total
+          }}</span>
           products
         </p>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="data?.total" class="mt-12 flex items-center justify-center gap-4">
+        <button
+          :disabled="page <= 1"
+          @click="page--"
+          class="rounded-lg bg-slate-200 px-4 py-2 dark:bg-slate-700 disabled:opacity-40"
+        >
+          Prev
+        </button>
+
+        <span class="font-semibold text-slate-900 dark:text-white">
+          Page {{ page }}
+        </span>
+
+        <button
+          :disabled="page >= Math.ceil(data.total / limit)"
+          @click="page++"
+          class="rounded-lg bg-slate-200 px-4 py-2 dark:bg-slate-700 disabled:opacity-40"
+        >
+          Next
+        </button>
       </div>
     </div>
   </section>

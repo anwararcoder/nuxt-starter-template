@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
     error: {
-        statusCode?: number
+        status?: number
         message?: string
     }
 }>()
@@ -22,7 +22,7 @@ const tryAgain = () => {
         <div class="mx-auto max-w-2xl text-center">
 
             <h1 class="mb-4 text-6xl font-bold">
-                {{ props.error?.statusCode || "Error" }}
+                {{ props.error?.status || "Error" }}
             </h1>
 
             <p class="mb-8 text-xl text-gray-600 dark:text-gray-400">

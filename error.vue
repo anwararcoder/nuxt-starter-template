@@ -1,9 +1,8 @@
 <script setup lang="ts">
 interface Props {
     error: {
-        statusCode?: number
+        status?: number
         message?: string
-        stack?: string
     }
 }
 
