@@ -1,4 +1,8 @@
-import { VueQueryPlugin, QueryClient, type VueQueryPluginOptions } from '@tanstack/vue-query'
+import {
+  VueQueryPlugin,
+  QueryClient,
+  type VueQueryPluginOptions,
+} from "@tanstack/vue-query";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const queryClient = new QueryClient({
@@ -14,14 +18,13 @@ export default defineNuxtPlugin((nuxtApp) => {
         retry: 1,
       },
     },
-  })
+  });
 
   const options: VueQueryPluginOptions = {
     queryClient,
     enableDevtoolsV6Plugin: true,
-  }
+  };
 
-  nuxtApp.vueApp.use(VueQueryPlugin, options)
-
-  nuxtApp.provide('queryClient', queryClient)
-})
+  nuxtApp.vueApp.use(VueQueryPlugin, options);
+  nuxtApp.provide("queryClient", queryClient);
+});

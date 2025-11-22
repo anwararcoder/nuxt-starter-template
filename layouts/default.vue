@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const globalError = useGlobalError()
+const { error: globalError } = useGlobalError();
+const { switchLang } = useSwitchLang();
 </script>
 
 <template>
@@ -20,6 +21,14 @@ const globalError = useGlobalError()
             class="text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
             About
           </NuxtLink>
+          <div class="flex gap-3">
+            <button @click="switchLang('ar')" class="px-3 py-1 bg-gray-200 rounded">
+              عربي
+            </button>
+            <button @click="switchLang('en')" class="px-3 py-1 bg-gray-200 rounded">
+              English
+            </button>
+          </div>
         </div>
       </div>
     </nav>
@@ -32,10 +41,7 @@ const globalError = useGlobalError()
   <!-- Footer -->
   <footer class="mt-auto border-t border-gray-200 dark:border-gray-800">
     <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
-      <p>
-        &copy; {{ new Date().getFullYear() }} Nuxt Starter Theme. All rights
-        reserved.
-      </p>
+      <p>&copy; {{ new Date().getFullYear() }} Nuxt Starter Theme. All rights reserved.</p>
     </div>
   </footer>
 </template>

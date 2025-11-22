@@ -1,11 +1,12 @@
 import { ref, watch } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
-import { getProducts } from "~/apis";
+import { useSwitchLang } from "./useSwitchLang";
 
 export const useProducts = () => {
   const router = useRouter();
   const route = useRoute();
+  const { locale } = useSwitchLang();
 
   // Reactive filters with initial values from URL
   const page = ref(Number(route.query.page ?? 1));
@@ -31,8 +32,15 @@ export const useProducts = () => {
   watch([page, limit, search, sortBy, order], updateUrl);
 
   const query = useQuery({
-    queryKey: ["products", page, limit, search, sortBy, order],
-    queryFn: () => getProducts(page.value, limit.value, search.value, sortBy.value, order.value),
+    queryKey: ["products", locale, page, limit, search, sortBy, order],
+    queryFn: () =>
+      getProducts(
+        page.value,
+        limit.value,
+        search.value,
+        sortBy.value,
+        order.value
+      ),
   });
 
   return {

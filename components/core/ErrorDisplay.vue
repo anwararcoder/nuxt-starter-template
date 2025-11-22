@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useGlobalError } from '~/composables/useGlobalError';
+
 const props = defineProps<{
     error: {
         status?: number
@@ -6,9 +9,11 @@ const props = defineProps<{
     }
 }>()
 
+const { clearError } = useGlobalError();
 const router = useRouter()
 
 const handleError = () => {
+    clearError();
     router.push('/')
 }
 
